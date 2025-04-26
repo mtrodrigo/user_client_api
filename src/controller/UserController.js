@@ -5,9 +5,9 @@ import { createUserToken } from "../helpers/createUserToken.js";
 export default class UserController {
   static async register(req, res) {
     if (!req.body) {
-        return res.status(400).json({ error: 'Empty request body' });
-      }
-    
+      return res.status(400).json({ error: "Empty request body" });
+    }
+
     const {
       name,
       email,
@@ -49,21 +49,21 @@ export default class UserController {
     const userExists = await User.findOne({ email: email });
     if (userExists) {
       res.status(422).json({ message: "invalid E-mail" });
-      return
+      return;
     }
-    
+
     //user cpf or cnpj exists
     const cpf_cnpjHash = await bcrypt.hash(cpf_cnpj, process.env.FIXED_SALT);
-    
+
     const cpf_cnpjExists = await User.findOne({ cpf_cnpj: cpf_cnpjHash });
     if (cpf_cnpjExists) {
-        res.status(422).json({ message: "CPF or CNPJ already registered" });
-        return;
+      res.status(422).json({ message: "CPF or CNPJ already registered" });
+      return;
     }
 
     const salt = await bcrypt.genSalt(16);
     const passwordHash = await bcrypt.hash(password, salt);
-    
+
     //create user
     const user = new User({
       name,
@@ -83,5 +83,10 @@ export default class UserController {
     } catch (error) {
       res.status(500).json({ message: error });
     }
+  }
+
+  static async getAllUsers(req, res) {
+    const users = await User.find().sort("-createdAt");
+    res.status(200).json({ users: users });
   }
 }
