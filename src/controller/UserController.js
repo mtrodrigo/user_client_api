@@ -1,22 +1,26 @@
-import { User } from "../models/User";
+import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
-import {createUserToken} from "../helpers/createUserToken"
+import { createUserToken } from "../helpers/createUserToken.js";
 
 export default class UserController {
   static async register(req, res) {
+    if (!req.body) {
+        return res.status(400).json({ error: 'Empty request body' });
+      }
+    
     const {
       name,
       email,
       password,
       confirmpassword,
       cpf_cnpj,
-      adress,
+      address,
       city,
       state,
       phone,
     } = req.body;
 
-    const administrator = false
+    const administrator = false;
 
     //validation
     if (
@@ -25,7 +29,7 @@ export default class UserController {
       !password ||
       !confirmpassword ||
       !cpf_cnpj ||
-      !adress ||
+      !address ||
       !city ||
       !state ||
       !phone
@@ -45,30 +49,39 @@ export default class UserController {
     const userExists = await User.findOne({ email: email });
     if (userExists) {
       res.status(422).json({ message: "invalid E-mail" });
+      return
+    }
+    
+    //user cpf or cnpj exists
+    const cpf_cnpjHash = await bcrypt.hash(cpf_cnpj, process.env.FIXED_SALT);
+    
+    const cpf_cnpjExists = await User.findOne({ cpf_cnpj: cpf_cnpjHash });
+    if (cpf_cnpjExists) {
+        res.status(422).json({ message: "CPF or CNPJ already registered" });
+        return;
     }
 
-    //create user
     const salt = await bcrypt.genSalt(16);
     const passwordHash = await bcrypt.hash(password, salt);
-    const cpf_cnpjHash = await bcrypt.hash(cpf_cnpj, salt);
-
+    
+    //create user
     const user = new User({
       name,
       email,
       password: passwordHash,
       cpf_cnpj: cpf_cnpjHash,
-      adress,
+      address,
       city,
       state,
       phone,
-      administrator: administrator
+      administrator: administrator,
     });
 
     try {
-        const newUser = await user.save()
-        await createUserToken(newUser, req, res)
+      const newUser = await user.save();
+      await createUserToken(newUser, req, res);
     } catch (error) {
-        res.status(500).json({message: error})
+      res.status(500).json({ message: error });
     }
   }
 }
