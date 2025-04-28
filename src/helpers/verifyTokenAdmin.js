@@ -16,13 +16,15 @@ const verifyTokenAdmin = async (req, res, next) => {
     if (decoded.administrator !== true) {
       return res
         .status(403)
-        .json({ message: "Access denied. Admin privileges required." });
+        .json({ message: "Access denied. Admin privileges required." })
+        .end()
     }
 
     req.user = decoded;
     next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid token." });
+    res.status(401).json({ message: "Invalid token." })
+    .end()
   }
 };
 

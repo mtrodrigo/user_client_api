@@ -6,5 +6,7 @@ const router = express.Router()
 
 router.post("/register", UserController.register)
 router.get("/getall", verifyTokenAdmin, UserController.getAllUsers)
+router.patch("/:id", verifyTokenAdmin, UserController.updateUser)
+router.delete("/:id", verifyTokenAdmin, UserController.removeUserById)
 
 export default router
