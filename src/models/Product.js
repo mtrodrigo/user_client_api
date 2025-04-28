@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const userSchema = new Schema(
+const productSchema = new Schema(
   {
     name: {
       type: String,
@@ -21,10 +21,10 @@ const userSchema = new Schema(
       required: true,
     },
     image: {
-      type: Buffer,
+      type: String,
       required: true,
     },
   },
   { timestamps: true }
 );
-export const Product = mongoose.model("User", userSchema);
+export const Product = mongoose.model("Product", productSchema);
