@@ -1,11 +1,16 @@
-import express from "express"
-import ProductController from "../controller/ProductController.js"
-import multer from "multer"
-import verifyTokenAdmin from "../helpers/verifyTokenAdmin.js"
+import express from "express";
+import ProductController from "../controller/ProductController.js";
+import multer from "multer";
+import verifyTokenAdmin from "../helpers/verifyTokenAdmin.js";
 
-const router = express.Router()
-const upload = multer()
+const router = express.Router();
+const upload = multer();
 
-router.post("/create", upload.single("image"), ProductController.create)
+router.post(
+  "/create",
+  verifyTokenAdmin,
+  upload.single("image"),
+  ProductController.create
+);
 
-export default router
+export default router;
