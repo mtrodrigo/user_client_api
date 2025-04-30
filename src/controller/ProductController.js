@@ -77,7 +77,8 @@ export default class ProductController {
   static async updateProductById(req, res) {
     const id = req.params.id;
 
-    
+    const image = req.file;
+
     //verify id
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(422).json({ messagem: "Invalid Id" });
@@ -88,7 +89,6 @@ export default class ProductController {
     }
 
     const { name, code, description, price } = req.body;
-    const image = req.file;
 
     //validations
     if (!name || !code || !description || !price) {
@@ -110,13 +110,13 @@ export default class ProductController {
         imageUrl = imgbbResponse.data.data.url;
       }
 
-      //check if product exists
+      // Verify product exists
       const existingProduct = await Product.findById(id);
       if (!existingProduct) {
         return res.status(404).json({ message: "Product not found" });
       }
 
-      //update a product
+      //Update product
       const product = await Product.findByIdAndUpdate(
         id,
         {
@@ -135,7 +135,7 @@ export default class ProductController {
 
       res.status(200).json({ message: "Product updated successfully" });
     } catch (error) {
-      res.status(500).json({ message: error });
+      res.status(500).json({ message: error.message });
     }
   }
 

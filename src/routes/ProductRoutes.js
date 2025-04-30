@@ -4,7 +4,9 @@ import multer from "multer";
 import verifyTokenAdmin from "../helpers/verifyTokenAdmin.js";
 
 const router = express.Router();
-const upload = multer();
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 router.post(
   "/create",
@@ -15,9 +17,14 @@ router.post(
 
 router.get("/", ProductController.getAll);
 
-router.get("/:id", ProductController.getProductsById)
+router.get("/:id", ProductController.getProductsById);
 
-router.patch("/update/:id", ProductController.updateProductById)
+router.patch(
+  "/:id",
+  verifyTokenAdmin,
+  upload.single("image"),
+  ProductController.updateProductById
+);
 
 router.delete(
   "/delete/:id",
