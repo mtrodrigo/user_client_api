@@ -25,9 +25,14 @@ src/
 │   ├── salesRoutes.js
 │   └── userRoutes.js
 ├── helpers/
+|   ├── createUserToken.js
+|   ├── decrypt.js
+|   ├── encrypt.js
+|   ├── getToken.js
+|   ├── getUserByToken.js
 │   ├── verifyTokenAdmin.js
 │   └── verifyUserToken.js
-└── app.js
+└── index.js
 ```
 
 ## Autenticação
@@ -51,7 +56,7 @@ Rotas protegidas por:
 |--------|---------------------------|----------------------------|--------------|
 | POST   | /sales/createsale         | Registra nova venda        | Usuário      |
 | PATCH  | /sales/updateAttended/:id | Atualiza status da venda   | Admin        |
-| GET    | /sales                    | Lista vendas               | Admin/Usuário|
+| GET    | /sales                    | Lista vendas               | Admin        |
 
 ###  Usuários
 | Método | Rota              | Descrição              | Acesso |
