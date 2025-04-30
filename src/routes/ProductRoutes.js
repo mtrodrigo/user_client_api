@@ -13,4 +13,16 @@ router.post(
   ProductController.create
 );
 
+router.get("/", ProductController.getAll);
+
+router.get("/:id", ProductController.getProductsById)
+
+router.patch("/update/:id", ProductController.updateProductById)
+
+router.delete(
+  "/delete/:id",
+  verifyTokenAdmin,
+  ProductController.removeProductById
+);
+
 export default router;
