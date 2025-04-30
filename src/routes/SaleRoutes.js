@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.post("/createsale",verifyUserToken,  SalesController.createSale);
 router.patch("/updateAttended/:id", verifyTokenAdmin, SalesController.updateAttended)
+router.get("/", SalesController.getSales)
 
 export default router;

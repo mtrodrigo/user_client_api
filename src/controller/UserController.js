@@ -98,7 +98,7 @@ export default class UserController {
       const users = await User.find().sort("-createdAt");
       const secretKey = process.env.SECRET_KEY;
 
-      const decryptedUsers = users.map((user) => {
+      users.map((user) => {
         let decryptedCpfCnpj = "";
         let decryptedPassword = "";
 
@@ -110,7 +110,7 @@ export default class UserController {
             decryptedPassword = decrypt(user.password, secretKey);
           }
         } catch (error) {
-          console.error("Error decrypting: ", error);
+          res.status(404).json({message: error});
         }
 
         return {
@@ -120,7 +120,7 @@ export default class UserController {
         };
       });
 
-      res.status(200).json({ users: decryptedUsers });
+      res.status(200).json({ message: "All users loaded successfully"});
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { getToken } from "../helpers/getToken.js";
 import { getUserByToken } from "../helpers/getUserByToken.js";
 import { Sale } from "../models/Sale.js";
+import { decrypt } from "../helpers/decrypt.js";
 
 export default class SalesController {
   static async createSale(req, res) {
@@ -86,6 +87,38 @@ export default class SalesController {
   }
 
   static async getSales(req, res) {
-    
+    try {
+      const sales = await Sale.find().sort("-createdAt")
+      const secretKey = process.env.SECRET_KEY
+
+      const decryptedData = sales.map((sale) => {
+        let decryptedCpfCnpj = "";
+        
+        try {
+          if (sale.user.cpf_cnpj) {
+            decryptedCpfCnpj = decrypt(sale.user.cpf_cnpj, secretKey)
+          }
+        } catch (error) {
+          res.status(404).json({message: error});
+        }
+
+        return {
+          ...sale.toObject(),
+          user: {
+            userId: sale.user.userId,
+            name: sale.user.name,
+            email: sale.user.email,
+            address: sale.user.address,
+            city: sale.user.city,
+            state: sale.user.state,
+            phone: sale.user.phone,
+            cpf_cnpj: decryptedCpfCnpj
+          }
+        }
+      })
+      res.status(200).json({ message: "All users loaded successfully", decryptedData});
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
 }
