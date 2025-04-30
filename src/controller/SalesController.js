@@ -40,7 +40,7 @@ export default class SalesController {
         attended: false,
       };
 
-      const salvedSale = await Sales.create(saleData);
+      const salvedSale = await Sale.create(saleData);
 
       res.status(201).json({ message: "Sale salved", salvedSale });
     } catch (error) {
@@ -67,6 +67,7 @@ export default class SalesController {
       if (!existingSale) {
         return res.status(404).json({ message: "Sale not found" });
       }
+
       const { attended } = req.body;
 
       //Update
@@ -84,5 +85,7 @@ export default class SalesController {
     }
   }
 
-  static async getSales(req, res) {}
+  static async getSales(req, res) {
+    
+  }
 }
