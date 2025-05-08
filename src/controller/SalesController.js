@@ -121,4 +121,43 @@ export default class SalesController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async getSalesById(req, res) {
+    try {
+      const id = req.params.id;
+
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(422).json({ message: "Invalid Id" });
+      }
+
+      const sale = await Sale.findById(id);
+
+      if (!sale) {
+        return res.status(404).json({ message: "Sale not found" });
+      }
+
+      const secretKey = process.env.SECRET_KEY;
+      let decryptedCpfCnpj = "";
+
+      try {
+        if (sale.user.cpf_cnpj) {
+          decryptedCpfCnpj = decrypt(sale.user.cpf_cnpj, secretKey);
+        }
+      } catch (error) {
+        return res.status(500).json({ message: "Error decrypting CPF/CNPJ" });
+      }
+
+      const saleWithDecryptedCpfCnpj = {
+        ...sale.toObject(),
+        user: {
+          ...sale.user,
+          cpf_cnpj: decryptedCpfCnpj,
+        },
+      };
+
+      res.status(200).json(saleWithDecryptedCpfCnpj);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }
