@@ -1,17 +1,16 @@
 import express from "express";
 import ProductController from "../controller/ProductController.js";
-import multer from "multer";
+import multer, { memoryStorage } from "multer";
 import verifyTokenAdmin from "../helpers/verifyTokenAdmin.js";
 
 const router = express.Router();
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({ storage: memoryStorage() });
 
 router.post(
   "/create",
   verifyTokenAdmin,
-  upload.single("image"),
+  upload.none(),
   ProductController.create
 );
 

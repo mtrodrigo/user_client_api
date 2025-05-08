@@ -5,12 +5,13 @@ import mongoose from "mongoose";
 
 export default class ProductController {
   static async create(req, res) {
+
     if (!req.body) {
       return res.status(400).json({ error: "No request body" });
     }
 
     const { name, code, description, price } = req.body;
-    const image = req.file;
+    const image64 = req.body.image;
 
     //validations
     if (!name || !code || !description || !price) {
@@ -20,13 +21,14 @@ export default class ProductController {
     //Image upload to ImgBB
     try {
       const formData = new FormData();
-      formData.append("image", image.buffer.toString("base64"));
+      formData.append("image", image64);
 
       const imgbbResponse = await axios.post(
         `https://api.imgbb.com/1/upload?key=${process.env.API_KEY}`,
         formData,
         { headers: formData.getHeaders() }
       );
+
       const imageUrl = imgbbResponse.data.data.url;
 
       //create a product
