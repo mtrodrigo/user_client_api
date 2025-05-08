@@ -72,9 +72,11 @@ export default class SalesController {
       const { attended } = req.body;
 
       //Update
-      const sale = await Sale.findByIdAndUpdate(id, {
-        attended,
-      });
+      const sale = await Sale.findByIdAndUpdate(
+        id,
+        { attended: !existingSale.attended },
+        { new: true }
+      );
 
       if (!sale) {
         return res.status(404).json({ message: "Sale not found" });
