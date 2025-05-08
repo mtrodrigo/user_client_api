@@ -1,13 +1,9 @@
 import jwt from "jsonwebtoken";
 
-export const createUserToken = async (user, req, res) => {
+export const createUserToken = (user) => {
   const token = jwt.sign(
-    {
-      id: user._id,
-      administrator: user.administrator,
-    },
-    process.env.JWT_SECRET
+    { id: user._id, email: user.email, administrator: user.administrator },
+    process.env.JWT_SECRET,
   );
-
-  res.status(200).json({ message: "Created", token});
+  return token;
 };

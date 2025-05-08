@@ -22,7 +22,7 @@ export default class UserController {
       phone,
     } = req.body;
 
-    const administrator = true;
+    const administrator = false;
 
     //validation
     if (
@@ -87,9 +87,10 @@ export default class UserController {
 
     try {
       const newUser = await user.save();
-      await createUserToken(newUser, req, res);
+      const token = createUserToken(newUser);
+      return res.status(201).json({ message: "User created successfully", token });
     } catch (error) {
-      res.status(500).json({ message: error });
+      return res.status(500).json({ message: error.message });
     }
   }
 
@@ -228,6 +229,42 @@ export default class UserController {
         message: "Internal server error",
         error: error.message 
       });
+    }
+  }
+
+  static async login(req, res) {
+    if (!req.body) {
+      return res.status(400).json({ error: "Empty request body" });
+    }
+
+    const { email, password } = req.body;
+
+    //validation
+    if (!email || !password) {
+      res.status(422).json({ message: "E-mail and password are required" });
+      return;
+    }
+
+    //check user
+    const user = await User.findOne({ email: email})
+    if(!user) {
+        res.status(422).json({message: 'User is not registered'})
+        return
+    }
+
+    //check password
+    const secretKey = process.env.SECRET_KEY;
+    const decryptedPassword = decrypt(user.password, secretKey);
+    if (password !== decryptedPassword) {
+        res.status(422).json({message: 'Invalid password'})
+        return
+    }
+    //create token
+    try {
+      const token = createUserToken(user);
+      return res.status(200).json({ message: "Login successful", token });
+    } catch (error) {
+      return res.status(500).json({ message: "Error generating token", error: error.message });
     }
   }
 }
