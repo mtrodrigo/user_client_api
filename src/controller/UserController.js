@@ -141,19 +141,28 @@ export default class UserController {
       // Validate ID format
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({
-          success: false,
           message: "Invalid user ID format",
         });
       }
 
       // Find user by ID
-      const user = await User.findById(id);
+      const user = await User.findById(id).select("-password");
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
+
+      const secretKey = process.env.SECRET_KEY;
+      let decryptedCpfCnpj = decrypt(user.cpf_cnpj, secretKey)
+
+
+      const decryptedUsers = {
+        ...user.toObject(),
+        cpf_cnpj: decryptedCpfCnpj
+      }
+
       // Return user data
-      res.status(200).json(user);
+      res.status(200).json(formattedUsers);
     } catch (error) {
       console.error("Error in getUserById:", error);
       res.status(500).json({ message: "Internal server error" });
