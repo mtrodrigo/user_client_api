@@ -162,7 +162,7 @@ export default class UserController {
       }
 
       // Return user data
-      res.status(200).json(formattedUsers);
+      res.status(200).json(decryptedUsers);
     } catch (error) {
       console.error("Error in getUserById:", error);
       res.status(500).json({ message: "Internal server error" });
