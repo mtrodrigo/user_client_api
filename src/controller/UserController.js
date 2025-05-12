@@ -100,76 +100,65 @@ export default class UserController {
     try {
       const users = await User.find().sort("-createdAt");
       const secretKey = process.env.SECRET_KEY;
-  
+
       // Decrypt sensitive fields
       const decryptedUsers = users.map((user) => {
         let decryptedCpfCnpj = "";
         let decryptedPassword = "";
-  
+
         try {
-          if (user.cpf_cnpj) decryptedCpfCnpj = decrypt(user.cpf_cnpj, secretKey);
-          if (user.password) decryptedPassword = decrypt(user.password, secretKey);
+          if (user.cpf_cnpj)
+            decryptedCpfCnpj = decrypt(user.cpf_cnpj, secretKey);
+          if (user.password)
+            decryptedPassword = decrypt(user.password, secretKey);
         } catch (error) {
           console.error("Decryption error:", error);
         }
-  
+
         return {
           ...user.toObject(),
           cpf_cnpj: decryptedCpfCnpj,
           password: decryptedPassword,
         };
       });
-  
+
       // Return both message AND data
       res.status(200).json({
         message: "All users loaded successfully",
-        users: decryptedUsers  // Make sure this is included
+        users: decryptedUsers,
       });
-      
     } catch (error) {
-      res.status(500).json({ 
-        message: error.message 
+      res.status(500).json({
+        message: error.message,
       });
     }
   }
 
   static async getUserById(req, res) {
     try {
-        const { id } = req.params;
-        
-        // Validate ID format
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ 
-                success: false,
-                message: "Invalid user ID format" 
-            });
-        }
+      const { id } = req.params;
 
-        // Find user by ID
-        const user = await User.findById(id);
-        
-        if (!user) {
-            return res.status(404).json({ 
-                success: false,
-                message: "User not found" 
-            });
-        }
-
-        // Return user data
-        res.status(200).json({
-            success: true,
-            data: user
+      // Validate ID format
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid user ID format",
         });
+      }
 
+      // Find user by ID
+      const user = await User.findById(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Return user data
+      res.status(200).json(user);
     } catch (error) {
-        console.error("Error in getUserById:", error);
-        res.status(500).json({ 
-            success: false,
-            message: "Internal server error",
-            error: error.message 
-        });
+      console.error("Error in getUserById:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-}
+  }
 
   static async updateUser(req, res) {
     const id = req.params.id;
