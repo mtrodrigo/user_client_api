@@ -5,7 +5,7 @@ import verifyTokenAdmin from "../helpers/verifyTokenAdmin.js";
 
 const router = express.Router();
 
-router.post("/createsale", verifyTokenAdmin, SalesController.createSale);
+router.post("/createsale", verifyUserToken, SalesController.createSale);
 router.patch(
   "/updateAttended/:id",
   verifyTokenAdmin,
