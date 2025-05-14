@@ -164,29 +164,35 @@ export default class SalesController {
   }
 
   static async getSaleByUserId(req, res) {
-    const userId = req.params.id
-
-    // Verify user id
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(422).json({ message: "Invalid User ID" });
-    }
-
     try {
-        const sales = await Sale.find({ "user.userId": userId })
+        const token = getToken(req);
+        
+        const user = await getUserByToken(token);
+        
+        if (!user) {
+            return res.status(401).json({ message: "Invalid or expired token" });
+        }
+
+        const sales = await Sale.find({ "user.userId": user._id })
             .sort({ createdAt: -1 });
 
         if (!sales || sales.length === 0) {
             return res.status(404).json({ 
-                message: "No orders found for this user",
+                message: "No sales found for this user",
                 data: []
             });
         }
 
-        res.status(200).json(sales);
+        res.status(200).json({
+            message: "User sales retrieved successfully",
+            data: sales
+        });
     } catch (error) {
-        console.error("Error fetching user orders:", error);
+        console.error("Error fetching user sales:", error);
         res.status(500).json({ 
-            message: "Internal server error: ", error });
+            message: "Internal server error",
+            error: error.message 
+        });
     }
 }
 }

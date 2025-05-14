@@ -13,6 +13,6 @@ router.patch(
 );
 router.get("/", verifyTokenAdmin, SalesController.getSales);
 router.get("/getsale/:id", verifyTokenAdmin, SalesController.getSalesById);
-router.get("/mysales/:id", verifyUserToken, SalesController.getSaleByUserId);
+router.get("/mysales/", verifyUserToken, SalesController.getSaleByUserId);
 
 export default router;
