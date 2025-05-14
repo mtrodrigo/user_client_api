@@ -29,7 +29,7 @@ export default class SalesController {
           quantity: item.quantity,
         })),
         user: {
-          userId: user.userId,
+          userId: user.id,
           name: user.name,
           email: user.email,
           cpf_cnpj: user.cpf_cnpj,
@@ -162,4 +162,31 @@ export default class SalesController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  static async getSaleByUserId(req, res) {
+    const userId = req.params.id
+
+    // Verify user id
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(422).json({ message: "Invalid User ID" });
+    }
+
+    try {
+        const sales = await Sale.find({ "user.userId": userId })
+            .sort({ createdAt: -1 });
+
+        if (!sales || sales.length === 0) {
+            return res.status(404).json({ 
+                message: "No orders found for this user",
+                data: []
+            });
+        }
+
+        res.status(200).json(sales);
+    } catch (error) {
+        console.error("Error fetching user orders:", error);
+        res.status(500).json({ 
+            message: "Internal server error: ", error });
+    }
+}
 }
