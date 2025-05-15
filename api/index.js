@@ -18,19 +18,23 @@ app.use("/products", ProductRoutes);
 app.use("/sales", SaleRoutes);
 app.get("/", (req, res) => res.status(200).json({ status: "OK" }));
 
-// Vercel serverless handler
-const handler = async (req, res) => {
+let isConnected = false;
+
+// Handler Vercel
+export default async function handler(req, res) {
   try {
-    await connectDb();
+    if (!isConnected) {
+      await connectDb();
+      isConnected = true;
+    }
     return app(req, res);
   } catch (error) {
     console.error("Server error:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-};
-
-// Initialize database connection for local development
-if (process.env.VERCEL_ENV !== "production") {
+}
+// Localhost
+if (process.env.NODE_ENV !== "production") {
   (async () => {
     try {
       await connectDb();
