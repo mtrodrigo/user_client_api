@@ -7,30 +7,37 @@ import SaleRoutes from "../src/routes/SaleRoutes.js";
 
 const app = express();
 
-//Middleware
+// Middleware
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//Routes
+// Routes
 app.use("/users", UserRoutes);
 app.use("/products", ProductRoutes);
 app.use("/sales", SaleRoutes);
-
 app.get("/", (req, res) => res.status(200).json({ status: "OK" }));
 
-//Vercel
-export default async (req, res) => {
+// Vercel serverless handler
+const handler = async (req, res) => {
   try {
     await connectDb();
-    app(req, res);
+    return app(req, res);
   } catch (error) {
     console.error("Server error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
+// Initialize database connection for local development
 if (process.env.VERCEL_ENV !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Local server on port ${PORT}`));
+  (async () => {
+    try {
+      await connectDb();
+      const PORT = process.env.PORT || 3000;
+      app.listen(PORT, () => console.log(`Local server on port ${PORT}`));
+    } catch (error) {
+      console.error("Failed to start local server:", error);
+    }
+  })();
 }
